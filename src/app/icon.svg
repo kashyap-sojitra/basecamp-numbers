@@ -1,0 +1,12 @@
+<!--
+  The app's mark, inverted for a favicon: white peaks on brand, because a thin
+  mark on transparent loses its shape at 16px. The hex values are the --brand
+  and --brand-soft tokens from globals.css flattened, since a static asset
+  cannot read them; change them together. The in-app version is SummitMark in
+  components/AppBar.tsx.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="7" fill="#6C64C9"/>
+  <path d="M21.5 12.5L29 25.5H14Z" fill="#A488F7"/>
+  <path d="M11.5 6L21 25.5H2Z" fill="#fff"/>
+</svg>

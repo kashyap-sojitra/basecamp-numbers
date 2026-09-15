@@ -1,0 +1,386 @@
+{
+  "id": "d967e3a8-ff58-4caf-bbc0-5689478614c8",
+  "prevId": "00000000-0000-0000-0000-000000000000",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.band_progress": {
+      "name": "band_progress",
+      "schema": "",
+      "columns": {
+        "learner_id": {
+          "name": "learner_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "grade_band": {
+          "name": "grade_band",
+          "type": "grade_band",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "total_solves": {
+          "name": "total_solves",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "checkpoints_passed": {
+          "name": "checkpoints_passed",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "band_progress_learner_id_learners_id_fk": {
+          "name": "band_progress_learner_id_learners_id_fk",
+          "tableFrom": "band_progress",
+          "tableTo": "learners",
+          "columnsFrom": [
+            "learner_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "band_progress_learner_id_grade_band_pk": {
+          "name": "band_progress_learner_id_grade_band_pk",
+          "columns": [
+            "learner_id",
+            "grade_band"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "band_total_solves_not_negative": {
+          "name": "band_total_solves_not_negative",
+          "value": "\"band_progress\".\"total_solves\" >= 0"
+        },
+        "band_checkpoints_not_negative": {
+          "name": "band_checkpoints_not_negative",
+          "value": "\"band_progress\".\"checkpoints_passed\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.camp_mastery": {
+      "name": "camp_mastery",
+      "schema": "",
+      "columns": {
+        "learner_id": {
+          "name": "learner_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "grade_band": {
+          "name": "grade_band",
+          "type": "grade_band",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "camp_number": {
+          "name": "camp_number",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "mastery": {
+          "name": "mastery",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "touched_at_solve": {
+          "name": "touched_at_solve",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "camp_mastery_learner_idx": {
+          "name": "camp_mastery_learner_idx",
+          "columns": [
+            {
+              "expression": "learner_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "grade_band",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "camp_mastery_learner_id_learners_id_fk": {
+          "name": "camp_mastery_learner_id_learners_id_fk",
+          "tableFrom": "camp_mastery",
+          "tableTo": "learners",
+          "columnsFrom": [
+            "learner_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "camp_mastery_learner_id_grade_band_camp_number_pk": {
+          "name": "camp_mastery_learner_id_grade_band_camp_number_pk",
+          "columns": [
+            "learner_id",
+            "grade_band",
+            "camp_number"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "camp_number_is_one_of_four": {
+          "name": "camp_number_is_one_of_four",
+          "value": "\"camp_mastery\".\"camp_number\" between 1 and 4"
+        },
+        "mastery_within_meter": {
+          "name": "mastery_within_meter",
+          "value": "\"camp_mastery\".\"mastery\" between 0 and 100"
+        },
+        "touched_at_solve_not_negative": {
+          "name": "touched_at_solve_not_negative",
+          "value": "\"camp_mastery\".\"touched_at_solve\" >= 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.climb_days": {
+      "name": "climb_days",
+      "schema": "",
+      "columns": {
+        "learner_id": {
+          "name": "learner_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "grade_band": {
+          "name": "grade_band",
+          "type": "grade_band",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "local_date": {
+          "name": "local_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "camp_number": {
+          "name": "camp_number",
+          "type": "smallint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "solves": {
+          "name": "solves",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "clean_solves": {
+          "name": "clean_solves",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "climb_days_learner_idx": {
+          "name": "climb_days_learner_idx",
+          "columns": [
+            {
+              "expression": "learner_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "climb_days_learner_id_learners_id_fk": {
+          "name": "climb_days_learner_id_learners_id_fk",
+          "tableFrom": "climb_days",
+          "tableTo": "learners",
+          "columnsFrom": [
+            "learner_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "climb_days_learner_id_grade_band_local_date_camp_number_pk": {
+          "name": "climb_days_learner_id_grade_band_local_date_camp_number_pk",
+          "columns": [
+            "learner_id",
+            "grade_band",
+            "local_date",
+            "camp_number"
+          ]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "climb_camp_is_one_of_four": {
+          "name": "climb_camp_is_one_of_four",
+          "value": "\"climb_days\".\"camp_number\" between 1 and 4"
+        },
+        "climb_solves_not_negative": {
+          "name": "climb_solves_not_negative",
+          "value": "\"climb_days\".\"solves\" >= 0"
+        },
+        "climb_clean_within_solves": {
+          "name": "climb_clean_within_solves",
+          "value": "\"climb_days\".\"clean_solves\" >= 0 and \"climb_days\".\"clean_solves\" <= \"climb_days\".\"solves\""
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.learners": {
+      "name": "learners",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "grade_band": {
+          "name": "grade_band",
+          "type": "grade_band",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "interest_theme": {
+          "name": "interest_theme",
+          "type": "interest_theme",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.grade_band": {
+      "name": "grade_band",
+      "schema": "public",
+      "values": [
+        "k-1",
+        "2-3",
+        "4-5"
+      ]
+    },
+    "public.interest_theme": {
+      "name": "interest_theme",
+      "schema": "public",
+      "values": [
+        "space",
+        "ocean",
+        "jungle"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

@@ -1,0 +1,204 @@
+@import "tailwindcss";
+
+/*
+ * Nerdy / Varsity Tutors palette, taken from nerdy.com's design tokens.
+ * Warm hues (reward, reward-deep) are reserved for reward moments only.
+ */
+:root {
+  /* Base and chrome — light and bright. */
+  --page: #fbfaff;
+  --surface: #ffffff;
+  --surface-tint: #f4f2fd;
+  --edge: #d2caee;
+  --ink: #202344;
+  /* Darkened from Nerdy's #6c6e87, which failed AA on our tinted and
+     reward-soft panels (4.50 and 4.22 against a 4.5 requirement). */
+  --ink-soft: #5f6178;
+
+  /* Primary accent — Nerdy periwinkle into purple. */
+  --brand: #6c64c9;
+  --brand-deep: #5824c5;
+  --brand-soft: #a488f7;
+
+  /* Secondary accent — hints and information. Nerdy's bright cyan #17e2ea is
+     only 1.6:1 on white, so it cannot carry a border or a word. The bright
+     cyan lives on in the ocean theme's sky, which is a per-theme palette
+     value rather than a token. */
+  --info: #0b7f86;
+
+  /* Supporting joy. Used for decorative particles only — sparkles and
+     confetti carry no information, so they are exempt from contrast rules. */
+  --mint: #35dd8b;
+  --grape: #a110ff;
+  /* Darkened from #fb43da (3.04:1 on white) so it can be read and can hold
+     white button text. */
+  --berry: #c9159f;
+  /* Berry as *text*, which must also clear AA on the pale berry banner. */
+  --berry-ink: #a80f84;
+  /* Berry at 10% over white, but *opaque*. A translucent tint is fine over the
+     page, and wrong over the mountain: on the ocean theme's peak the card's
+     text fell to 1.23:1. Anything sitting on the board uses this. */
+  --berry-soft: #fae8f5;
+
+  /* Reward only: mastery gains, camp completion, summit. Never UI chrome. */
+  --reward: #ffcb19;
+  --reward-deep: #ff800d;
+  --reward-soft: #ffeac0;
+  /* Yellow and orange are fills only; warm *text* needs this to stay legible. */
+  --reward-ink: #a94e00;
+
+}
+
+@theme inline {
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-surface-tint: var(--surface-tint);
+  --color-edge: var(--edge);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-brand: var(--brand);
+  --color-brand-deep: var(--brand-deep);
+  --color-brand-soft: var(--brand-soft);
+  --color-info: var(--info);
+  --color-mint: var(--mint);
+  --color-grape: var(--grape);
+  --color-berry: var(--berry);
+  --color-berry-ink: var(--berry-ink);
+  --color-berry-soft: var(--berry-soft);
+  --color-reward: var(--reward);
+  --color-reward-deep: var(--reward-deep);
+  --color-reward-soft: var(--reward-soft);
+  --color-reward-ink: var(--reward-ink);
+  --font-sans: var(--font-karla);
+}
+
+body {
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--font-karla), system-ui, sans-serif;
+}
+
+/*
+ * Every control that can be clicked says so with a pointer.
+ *
+ * Browsers give `<a href>` a pointer and `<button>` an arrow, so without this
+ * the map's links and the camps' buttons disagree about whether they are
+ * clickable — and a child hunting for the next thing to press gets no hint
+ * from two thirds of the controls. One rule here rather than `cursor-pointer`
+ * repeated on two dozen components, so a control added later cannot forget it.
+ *
+ * It sits in `@layer base` deliberately: Tailwind's utilities layer wins over
+ * base, so a control that means something *else* by its cursor still says so
+ * (the draggable pieces are `cursor-grab`). Unlayered, this would outrank
+ * every utility and clobber them.
+ *
+ * Disabled controls are excluded and keep the plain arrow, which is the whole
+ * point — nothing should offer a press it will not accept.
+ */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+}
+
+
+/*
+ * Route transitions. Forward navigation carries the child deeper into the
+ * mountain (content slides in from the right); back reverses it. Timing is
+ * asymmetric on purpose: the old view leaves quickly so it stops competing
+ * for attention, and the new one arrives a touch more gently.
+ */
+:root {
+  --vt-exit: 180ms;
+  --vt-enter: 320ms;
+}
+
+@keyframes vt-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes vt-in-right {
+  from { opacity: 0; transform: translateX(42px) scale(0.97); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes vt-out-left {
+  from { opacity: 1; transform: translateX(0) scale(1); }
+  to { opacity: 0; transform: translateX(-42px) scale(0.97); }
+}
+@keyframes vt-in-left {
+  from { opacity: 0; transform: translateX(-42px) scale(0.97); }
+  to { opacity: 1; transform: translateX(0) scale(1); }
+}
+@keyframes vt-out-right {
+  from { opacity: 1; transform: translateX(0) scale(1); }
+  to { opacity: 0; transform: translateX(42px) scale(0.97); }
+}
+
+::view-transition-old(.nav-forward) {
+  animation: var(--vt-exit) cubic-bezier(0.4, 0, 1, 1) both vt-out-left;
+}
+::view-transition-new(.nav-forward) {
+  animation: var(--vt-enter) cubic-bezier(0.16, 1, 0.3, 1) var(--vt-exit) both vt-in-right;
+}
+::view-transition-old(.nav-back) {
+  animation: var(--vt-exit) cubic-bezier(0.4, 0, 1, 1) both vt-out-right;
+}
+::view-transition-new(.nav-back) {
+  animation: var(--vt-enter) cubic-bezier(0.16, 1, 0.3, 1) var(--vt-exit) both vt-in-left;
+}
+::view-transition-old(.fade-through) {
+  animation: var(--vt-exit) ease-out both vt-fade reverse;
+}
+::view-transition-new(.fade-through) {
+  animation: var(--vt-enter) ease-in var(--vt-exit) both vt-fade;
+}
+
+/* A camp marker on the map grows into the camp's badge, so the child can see
+   which camp they walked into. */
+::view-transition-group(.camp-morph) {
+  animation-duration: 460ms;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Nothing above should move for anyone who has asked it not to. */
+/*
+ * A sleek scrollbar for the one thing that scrolls on purpose: the mountain
+ * board, which is wider than its frame so the next range can sit beyond the
+ * summit. A 6px rounded thumb in the soft brand colour on a clear track, kept
+ * out of the frame's rounded corners by the track margin. Chrome, Safari and Edge
+ * take the WebKit pseudo-elements; Firefox has no such thing and gets the
+ * standard thin scrollbar in the same colours.
+ */
+.scroll-sleek {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.scroll-sleek::-webkit-scrollbar {
+  height: 6px;
+}
+.scroll-sleek::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 0 28px;
+}
+.scroll-sleek::-webkit-scrollbar-thumb {
+  background: var(--brand-soft);
+  border-radius: 999px;
+}
+.scroll-sleek:hover::-webkit-scrollbar-thumb {
+  background: var(--brand);
+}
+@supports not selector(::-webkit-scrollbar) {
+  .scroll-sleek {
+    scrollbar-width: thin;
+    scrollbar-color: var(--brand-soft) transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

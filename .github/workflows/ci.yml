@@ -1,0 +1,69 @@
+name: CI
+
+# Every push and every pull request. The suite is the reason a change can be
+# made confidently, so nothing merges without it having run.
+on:
+  push:
+  pull_request:
+
+# Read-only: nothing here needs to write to the repo, and a token that cannot
+# write cannot be made to.
+permissions:
+  contents: read
+
+# Pushing twice in a minute should not leave the first run burning a runner.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Build, typecheck, lint, test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # Matches the runtime the app is developed against; Vitest 5 needs
+          # >= 22 and @types/node is pinned to ^24.
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      # `build` comes first on purpose: ESLint is type-aware and `tsc --noEmit`
+      # reads the route types Next generates into `.next/types`, so both of the
+      # steps below need a build to have happened. No DATABASE_URL is set here —
+      # the app is meant to build without one, and this proves it stays that way.
+      - name: Build
+        run: npm run build
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      # Coverage thresholds live in vitest.config.mts and fail the run on their
+      # own, so this step is the floor as well as the suite.
+      - name: Test with coverage
+        run: npm run test:coverage
+
+      # Streaks, the daily goal and the climb log all turn over on the child's
+      # own calendar day. A suite that only ever runs in one timezone cannot see
+      # an off-by-one-day bug, so it runs again at the far edge of the map.
+      - name: Test at UTC+14
+        run: npm test
+        env:
+          TZ: Pacific/Kiritimati
+
+      - name: Test at UTC-11
+        run: npm test
+        env:
+          TZ: Pacific/Niue
+
+      - name: Audit
+        run: npm audit --audit-level=high
